@@ -1,0 +1,48 @@
+---
+apiVersion: "v1"
+kind: "Namespace"
+metadata:
+  name: "game"
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "lastways"
+  namespace: "game"
+  labels:
+    app: "lastways"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: "lastways"
+  template:
+    metadata:
+      labels:
+        app: "lastways"
+    spec:
+      containers:
+      - name: "lastways-1"
+        image: "eu.gcr.io/last-ways-42583848/lastways:0.3"
+---
+apiVersion: "autoscaling/v2beta1"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "lastways-hpa-eydu"
+  namespace: "game"
+  labels:
+    app: "lastways"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "lastways"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      targetAverageUtilization: 80
+
+
